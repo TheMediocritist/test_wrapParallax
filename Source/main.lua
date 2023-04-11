@@ -20,8 +20,6 @@ function initialise()
     parallax:addLayer(front, 0.6)
     parallax:addLayer(middle, 0.2)
     parallax:addLayer(back, 0.1)
-    
-    
     parallax:add()
     
     initialised = true
@@ -35,8 +33,6 @@ function playdate.update()
 end
 
 
-
-
 function math.ring(a, min, max)
     if min > max then
         min, max = max, min
@@ -46,18 +42,13 @@ end
 
 class("Parallax").extends(gfx.sprite)
 
-function Parallax:init(player)
+function Parallax:init()
     Parallax.super.init(self)
-    self.player = player
     self:setSize(400, 240)
-    self:moveTo(0, 0)
-    self:add()
-    self:setZIndex(-500)
     self.layers = {}
 end
 
 function Parallax:draw()
-    
     for _, layer in ipairs(self.layers) do
         local img = layer.image
         local offset = layer.offset - (layer.offset % 2)
@@ -91,7 +82,6 @@ function Parallax:scroll(delta)
     for _, layer in ipairs(self.layers) do
         layer.offset = math.ring(layer.offset + (delta * layer.depth), -layer.width, 0)
     end
-    self:markDirty()
 end
 
 function Parallax:update()
