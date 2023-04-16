@@ -1,3 +1,6 @@
+-- parallax implementation derived from frankbsad: https://devforum.play.date/t/a-list-of-helpful-libraries-and-code/221/93
+-- image wrapping implementation derived from dustin: https://devforum.play.date/t/a-list-of-helpful-libraries-and-code/221/91
+
 import 'CoreLibs/sprites'
 import 'CoreLibs/graphics'
 
