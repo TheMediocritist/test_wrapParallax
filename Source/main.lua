@@ -1,5 +1,5 @@
--- parallax implementation derived from frankbsad (Rob): https://devforum.play.date/t/a-list-of-helpful-libraries-and-code/221/93
--- image wrapping implementation derived from Dustin Mierau: https://devforum.play.date/t/a-list-of-helpful-libraries-and-code/221/91
+-- parallax implementation by frankbsad (Rob): https://devforum.play.date/t/a-list-of-helpful-libraries-and-code/221/93
+-- image wrapping implementation by Dustin Mierau: https://devforum.play.date/t/a-list-of-helpful-libraries-and-code/221/91
 
 import 'CoreLibs/sprites'
 import 'CoreLibs/graphics'
