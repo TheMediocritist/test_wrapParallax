@@ -17,13 +17,12 @@ local input_vector = geom.vector2D.new(0, 0)
 local initialised = false
 
 function initialise()
+    
     -- create parallax
-    parallax = Parallax()
-    parallax:setSize(400,240)
+    parallax = Parallax(200, 120, 360, 200)
     parallax:addLayer(front, 0.6)
     parallax:addLayer(middle, 0.2)
-    parallax:addLayer(back, 0.1)
-    parallax:add()
+    parallax:addLayer(back, 0.1, 1)
     
     initialised = true
 end
@@ -31,64 +30,70 @@ end
 function playdate.update()
     if not initialised then initialise() end
     
-    parallax:scroll(input_vector.dx * -5)
-    parallax:draw(0, 0, 400, 240)
-end
-
-
-function math.ring(a, min, max)
-    if min > max then
-        min, max = max, min
-    end
-    return min + (a - min) % (max - min)
+    if input_vector.dx ~= 0 then parallax:scroll(input_vector.dx * -5) end
+    
+    gfx.sprite.update()
+    
 end
 
 class("Parallax").extends(gfx.sprite)
 
-function Parallax:init()
+function Parallax:init(x, y, width, height)
     Parallax.super.init(self)
-    self:setSize(400, 240)
+    self.canvas = gfx.image.new(width, height)
+    self.redraw = true
+    self:setImage(self.canvas)
     self.layers = {}
+    self:moveTo(x, y)
+    
+    self:add()
+
 end
 
-function Parallax:draw()
-    for _, layer in ipairs(self.layers) do
-        local img = layer.image
-        local offset = layer.offset - (layer.offset % 2)
-        
-        if offset_x == 0 then
-            img:drawTiled(self.x, self.y, self.width, self.height)
-            return
-        end
-        
-        local iw, ih = img:getSize()
-        local sx = math.abs(offset % iw) - iw + self.x
-        
-        local cx, cy, cw, ch = playdate.graphics.getClipRect()
-        playdate.graphics.setClipRect(draw_x, draw_y, width, height)
-        img:drawTiled(sx, self.y, self.width - sx, self.height)
-        playdate.graphics.setClipRect(cx, cy, cw, ch)
-    end
-end
-
-function Parallax:addLayer(img, depth)
+function Parallax:addLayer(img, depth, minScroll)
     local w, _ = img:getSize()
     local layer = {}
     layer.image = img
     layer.depth = depth
+    layer.minimum_scroll = minScroll or 2
     layer.offset = 0
     layer.width = w
     table.insert(self.layers, 1, layer) -- add the layer to the front of the table
+end
+
+function Parallax:update()
+    if self.redraw then
+        playdate.graphics.lockFocus(self.canvas)
+        playdate.graphics.clear()
+        playdate.graphics.setClipRect(0, 0, self.width, self.height)
+        
+        for _, layer in ipairs(self.layers) do
+            local img = layer.image
+            
+            -- lock offset to minimum scroll (use 2 to reduce flashing)
+            local offset = layer.offset - (layer.offset % layer.minimum_scroll)
+            
+            img:drawTiled(offset, 0, self.width - offset, self.height)
+
+        end
+        playdate.graphics.unlockFocus()
+        self:setImage(self.canvas)
+        self.redraw = false
+    end
 end
 
 function Parallax:scroll(delta)
     for _, layer in ipairs(self.layers) do
         layer.offset = math.ring(layer.offset + (delta * layer.depth), -layer.width, 0)
     end
+    self.redraw = true
 end
 
-function Parallax:update()
-    self:scroll(-self.player.velocity)
+function math.ring(a, min, max)
+    if min > max then
+        min, max = max, min
+    end
+    return min + (a - min) % (max - min)
 end
 
 -- input callbacks
